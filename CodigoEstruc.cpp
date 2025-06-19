@@ -1,0 +1,76 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+struct Nodo {
+    string nombre;
+    string id;
+    string fechaNacimiento;
+    Nodo* izquierdo;
+    Nodo* derecho;
+
+    Nodo(string _nombre, string _id, string _fechaNacimiento) {
+        nombre = _nombre;
+        id = _id;
+        fechaNacimiento = _fechaNacimiento;
+        izquierdo = NULL;
+        derecho = NULL;
+    }
+};
+
+Nodo* insertar(Nodo* raiz, Nodo* nuevo) {
+    if (raiz == NULL) {
+        return nuevo;
+    }
+    if (nuevo->nombre < raiz->nombre) {
+        raiz->izquierdo = insertar(raiz->izquierdo, nuevo);
+    } else {
+        raiz->derecho = insertar(raiz->derecho, nuevo);
+    }
+    return raiz;
+}
+
+void inorden(Nodo* nodo) {
+    if (nodo != NULL) {
+        inorden(nodo->izquierdo);
+        cout << nodo->nombre << " - " << nodo->id << " - " << nodo->fechaNacimiento << endl;
+        inorden(nodo->derecho);
+    }
+}
+
+int main() {
+    Nodo* raiz = NULL;
+    int opcion;
+    
+    do {
+        cout << "\n--- Menu Arbol Genealogico ---\n";
+        cout << "1. Insertar miembro\n";
+        cout << "2. Mostrar recorrido \n";
+        cout << "3. Salir\n";
+        cout << "Seleccione una opcion: ";
+        cin >> opcion;
+        cin.ignore();
+
+        if (opcion == 1) {
+            string nombre, id, fecha;
+            cout << "Nombre: ";
+            getline(cin, nombre);
+            cout << "ID: ";
+            getline(cin, id);
+            cout << "Fecha de nacimiento (YYYY-MM-DD): ";
+            getline(cin, fecha);
+            raiz = insertar(raiz, new Nodo(nombre, id, fecha));
+            cout << "Miembro insertado con exito.\n";
+        } else if (opcion == 2) {
+            cout << "\n--- Recorrido  ---\n";
+            inorden(raiz);
+        } else if (opcion == 3) {
+            cout << "Saliendo del programa...\n";
+        } else {
+            cout << "Opcion invalida. Intente de nuevo.\n";
+        }
+
+    } while (opcion != 3);
+
+    return 0;
+}
