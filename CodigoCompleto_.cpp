@@ -8,6 +8,7 @@ struct Nodo {
     string fechaNacimiento;
     Nodo* izquierdo;
     Nodo* derecho;
+    Nodo* padre;
 
     Nodo(string _nombre, string _id, string _fechaNacimiento) {
         nombre = _nombre;
@@ -15,17 +16,19 @@ struct Nodo {
         fechaNacimiento = _fechaNacimiento;
         izquierdo = NULL;
         derecho = NULL;
+        padre = NULL;
     }
 };
 
-Nodo* insertar(Nodo* raiz, Nodo* nuevo) {
+Nodo* insertar(Nodo* raiz, Nodo* nuevo, Nodo* padre = NULL) {
     if (raiz == NULL) {
+        nuevo->padre = padre;
         return nuevo;
     }
     if (nuevo->nombre < raiz->nombre) {
-        raiz->izquierdo = insertar(raiz->izquierdo, nuevo);
+        raiz->izquierdo = insertar(raiz->izquierdo, nuevo, raiz);
     } else {
-        raiz->derecho = insertar(raiz->derecho, nuevo);
+        raiz->derecho = insertar(raiz->derecho, nuevo, raiz);
     }
     return raiz;
 }
@@ -38,19 +41,19 @@ void inorden(Nodo* nodo) {
     }
 }
 
-Nodo* buscar(Nodo* raiz, const string& id) {
-    if (raiz == NULL || raiz->id == id) {
-        return raiz;
-    }
-    if (id < raiz->id) {
-        return buscar(raiz->izquierdo, id);
-    } else {
-        return buscar(raiz->derecho, id);
-    }
+// Nueva función para buscar por id recorriendo todo el árbol
+Nodo* buscarPorID(Nodo* raiz, const string& id) {
+    if (raiz == NULL) return NULL;
+    if (raiz->id == id) return raiz;
+
+    Nodo* encontradoIzq = buscarPorID(raiz->izquierdo, id);
+    if (encontradoIzq != NULL) return encontradoIzq;
+
+    return buscarPorID(raiz->derecho, id);
 }
 
 void actualizar(Nodo* raiz, const string& id) {
-    Nodo* nodo = buscar(raiz, id);
+    Nodo* nodo = buscarPorID(raiz, id);
     if (nodo == NULL) {
         cout << "Miembro no encontrado.\n";
         return;
@@ -97,6 +100,43 @@ Nodo* eliminar(Nodo* raiz, const string& id) {
     return raiz;
 }
 
+void mostrarAncestros(Nodo* nodo) {
+    if (nodo == NULL) {
+        cout << "Miembro no encontrado.\n";
+        return;
+    }
+    if (nodo->padre == NULL) {
+        cout << nodo->nombre << " no tiene ancestros registrados.\n";
+        return;
+    }
+    cout << "Ancestros de " << nodo->nombre << ":\n";
+    Nodo* actual = nodo->padre;
+    while (actual != NULL) {
+        cout << actual->nombre << " - " << actual->id << " - " << actual->fechaNacimiento << endl;
+        actual = actual->padre;
+    }
+}
+
+void mostrarHijos(Nodo* nodo) {
+    if (nodo == NULL) {
+        cout << "Miembro no encontrado.\n";
+        return;
+    }
+    cout << "Hijos de " << nodo->nombre << ":\n";
+    bool tieneHijos = false;
+    if (nodo->izquierdo != NULL) {
+        cout << "- " << nodo->izquierdo->nombre << " - " << nodo->izquierdo->id << " - " << nodo->izquierdo->fechaNacimiento << endl;
+        tieneHijos = true;
+    }
+    if (nodo->derecho != NULL) {
+        cout << "- " << nodo->derecho->nombre << " - " << nodo->derecho->id << " - " << nodo->derecho->fechaNacimiento << endl;
+        tieneHijos = true;
+    }
+    if (!tieneHijos) {
+        cout << "No tiene hijos registrados.\n";
+    }
+}
+
 int main() {
     Nodo* raiz = NULL;
     int opcion;
@@ -109,6 +149,8 @@ int main() {
         cout << "4. Eliminar miembro\n";
         cout << "5. Actualizar miembro\n";
         cout << "6. Salir\n";
+        cout << "7. Ver ancestros\n";
+        cout << "8. Ver hijos\n";
         cout << "Seleccione una opcion: ";
         cin >> opcion;
         cin.ignore();
@@ -130,7 +172,7 @@ int main() {
             string id;
             cout << "Ingrese el ID del miembro a buscar: ";
             getline(cin, id);
-            Nodo* resultado = buscar(raiz, id);
+            Nodo* resultado = buscarPorID(raiz, id);
             if (resultado != NULL) {
                 cout << "Miembro encontrado: " << resultado->nombre << " - " << resultado->fechaNacimiento << endl;
             } else {
@@ -147,6 +189,18 @@ int main() {
             cout << "Ingrese el ID del miembro a actualizar: ";
             getline(cin, id);
             actualizar(raiz, id);
+        } else if (opcion == 7) {
+            string id;
+            cout << "Ingrese el ID del miembro para ver sus ancestros: ";
+            getline(cin, id);
+            Nodo* nodo = buscarPorID(raiz, id);
+            mostrarAncestros(nodo);
+        } else if (opcion == 8) {
+            string id;
+            cout << "Ingrese el ID del miembro para ver sus hijos: ";
+            getline(cin, id);
+            Nodo* nodo = buscarPorID(raiz, id);
+            mostrarHijos(nodo);
         } else if (opcion == 6) {
             cout << "Saliendo del programa...\n";
         } else {
