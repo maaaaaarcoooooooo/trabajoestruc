@@ -1,0 +1,33 @@
+Nodo* encontrarMinimo(Nodo* nodo) {
+    while (nodo->izquierdo != NULL) {
+        nodo = nodo->izquierdo;
+    }
+    return nodo;
+}
+
+Nodo* eliminar(Nodo* raiz, const string& id) {
+    if (raiz == NULL) return NULL;
+
+    if (id < raiz->id) {
+        raiz->izquierdo = eliminar(raiz->izquierdo, id);
+    } else if (id > raiz->id) {
+        raiz->derecho = eliminar(raiz->derecho, id);
+    } else {
+        if (raiz->izquierdo == NULL) {
+            Nodo* temp = raiz->derecho;
+            delete raiz;
+            return temp;
+        } else if (raiz->derecho == NULL) {
+            Nodo* temp = raiz->izquierdo;
+            delete raiz;
+            return temp;
+        } else {
+            Nodo* temp = encontrarMinimo(raiz->derecho);
+            raiz->nombre = temp->nombre;
+            raiz->id = temp->id;
+            raiz->fechaNacimiento = temp->fechaNacimiento;
+            raiz->derecho = eliminar(raiz->derecho, temp->id);
+        }
+    }
+    return raiz;
+}
