@@ -141,7 +141,7 @@ int main() {
             cout << "Ingrese el ID del miembro a eliminar: ";
             getline(cin, id);
             raiz = eliminar(raiz, id);
-            cout << "Miembro eliminado si existía.\n";
+            cout << "Miembro eliminado si existÃ­a.\n";
         } else if (opcion == 5) {
             string id;
             cout << "Ingrese el ID del miembro a actualizar: ";
